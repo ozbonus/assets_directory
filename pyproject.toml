@@ -12,6 +12,9 @@ tinytag = "^1.8.1"
 pillow = "^9.4.0"
 
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
