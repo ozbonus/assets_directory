@@ -74,7 +74,7 @@ def verify_args():
 
 def make_json():
     media_items = OrderedDict()
-    audio_files = Path(args.input).glob(f"*.{args.extension}")
+    audio_files = sorted(Path(args.input).glob(f"*.{args.extension}"))
     disc_total = 1
     absolute_track_number = 1
     for file in audio_files:
