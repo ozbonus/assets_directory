@@ -21,9 +21,11 @@ jsn.add_argument("-j", dest="json", action="store_true", help="Process JSON and 
 jsn.add_argument("-f", dest="extension", help="Input audio filetype. Default: mp3", default="mp3")
 jsn.add_argument("-c", dest="cover", required="-j" in sys.argv, help="Book cover image, input dir.")
 jsn.add_argument("-a", dest="art", required="-j" in sys.argv, help="Square album image, input dir.")
+jsn.add_argument("-d", dest="disc_object", help="Disc object name. Default: Disc", default="Disc")
+jsn.add_argument("-t", dest="track_object", help="Track object name. Default: Track", default="Track")
 
 enc = parser.add_argument_group("Transcoding Settings")
-enc.add_argument("-t", dest="transcode", action="store_true", help="Transcode audio files")
+enc.add_argument("-T", dest="transcode", action="store_true", help="Transcode audio files")
 
 
 def create_directories(output_dir: Path) -> None:
@@ -87,10 +89,13 @@ def make_json():
             "id": f"asset:///assets/audio/{name}.aac",
             "album": tag.album,
             "title": tag.title,
+            "displayDescription": tag.comment,
             "artist": tag.artist,
             "extras": {
-                "disc": tag.disc,
-                "discTrack": tag.track,
+                "discObject": args.disc_object,
+                "trackObject": args.track_object,
+                "disc": tag.disc or "1",
+                "discTrack": tag.track.lstrip("0"),
                 "absoluteTrack": str(absolute_track_number),
                 "transcripts": {},
             },
@@ -174,6 +179,8 @@ if __name__ == "__main__":
     else:
         output = input.parent
 
+    summary = []
+
     json_dir = Path(output / "assets" / "json")
     images_dir = Path(output / "assets" / "images")
     audio_dir = Path(output / "assets" / "audio")
@@ -187,3 +194,5 @@ if __name__ == "__main__":
     if args.transcode:
         audio_dir.mkdir(parents=True, exist_ok=True)
         transcode_audio()
+
+    print(summary)
