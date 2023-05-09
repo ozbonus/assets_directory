@@ -6,14 +6,14 @@ from functools import reduce
 from pathlib import Path
 
 import ffmpeg
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageFilter, UnidentifiedImageError
 from tinytag import TinyTag
 
 parser = argparse.ArgumentParser()
 
 dir = parser.add_argument_group("Directories")
 dir.add_argument("input", help="Directory of original files.")
-dir.add_argument("-o", dest="output", help="Output directory. Default: Input's parent.", default="")
+dir.add_argument("-o", dest="output", help="Output directory. Default: Input's parent.")
 dir.add_argument("-p", dest="prefix", help="Prefix to audio file names and JSON keys.", default="")
 
 jsn = parser.add_argument_group("JSON and Images")
@@ -38,10 +38,13 @@ def verify_args():
     else:
         errors.append(f"* Invalid input directory: {args.input}")
 
-    if Path(args.output).exists():
+    if args.output == None:
         pass
     else:
-        errors.append(f"* Invalid output directory: {args.output}")
+        if Path(args.output).exists():
+            pass
+        else:
+            errors.append(f"* Invalid output directory: {args.output}")
 
     if args.json:
         # TODO: Check that audio files with extension exist.
@@ -109,8 +112,16 @@ def make_images():
         for width in [640, 512, 320, 240, 120]:
             scale_factor = width / cover.width
             height = int(cover.height * scale_factor)
+            blur_radius = width // 12
+
             write_file = output / "assets" / "images" / f"cover_{width}_{height}.png"
-            cover.resize((width, height), Image.Resampling.LANCZOS).save(write_file)
+            blurred_file = output / "assets" / "images" / f"cover_blurred_{width}_{height}.png"
+            
+            resized_cover = cover.resize((width, height), Image.Resampling.LANCZOS)
+            blurred_cover = resized_cover.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+
+            resized_cover.save(write_file)
+            blurred_cover.save(blurred_file)
 
     with Image.open(input / args.art) as art:
         for size in [640, 512, 320, 240, 120]:
@@ -154,11 +165,14 @@ def transcode_audio():
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    input = Path(args.input)
-    output = Path(args.output) or input.parent
-    summary = []
-
     verify_args()
+
+    input = Path(args.input)
+    output = None
+    if args.output != None:
+        output = Path(args.output)
+    else:
+        output = input.parent
 
     json_dir = Path(output / "assets" / "json")
     images_dir = Path(output / "assets" / "images")
