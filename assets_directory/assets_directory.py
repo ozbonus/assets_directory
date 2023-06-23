@@ -91,6 +91,7 @@ def make_json():
             "title": tag.title,
             "displayDescription": tag.comment,
             "artist": tag.artist,
+            "duration": tag.duration,
             "extras": {
                 "discObject": args.disc_object,
                 "trackObject": args.track_object,
