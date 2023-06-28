@@ -101,14 +101,31 @@ def make_json():
                 "transcripts": {},
             },
         }
+
+        # Get transcripts.
+        transcripts_dict = {}
+        stem = file.stem
+        transcripts = Path(args.input).glob(f"{stem}_*.txt")
+        for transcript_file in transcripts:
+            locale_code = transcript_file.stem.split("_")[-1]
+            lines = []
+            with open(transcript_file, "r", encoding="utf-8") as f:
+                # lines = [line.strip() for line in f if line]
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        lines.append(line)
+            transcripts_dict[locale_code] = lines
+        media_items[name]["extras"]["transcripts"] = transcripts_dict
+
         disc_total = max(disc_total, int(media_items[name]["extras"]["disc"]))
         absolute_track_number += 1
 
     for item in media_items:
         media_items[item]["extras"]["discTotal"] = str(disc_total)
 
-    with open(json_dir / "media_items.json", "w") as write_file:
-        json.dump(media_items, write_file, indent=4)
+    with open(json_dir / "media_items.json", "w", encoding="utf-8") as write_file:
+        json.dump(media_items, write_file, indent=4, ensure_ascii=False)
 
     summary.append(f"Defined {absolute_track_number} MediaItem(s) from audio file(s).")
 
