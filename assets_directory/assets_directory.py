@@ -40,7 +40,7 @@ def verify_args():
     else:
         errors.append(f"* Invalid input directory: {args.input}")
 
-    if args.output == None:
+    if args.output is None:
         pass
     else:
         if Path(args.output).exists():
@@ -167,7 +167,7 @@ def transcode_audio():
                 str(write_file),
                 acodec="libfdk_aac",
                 profile="a",
-                vbr="1",
+                # vbr="1",
                 ac=1,
                 aac_coder="he_aac_v2",
             )
@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
     input = Path(args.input)
     output = None
-    if args.output != None:
+    if args.output is not None:
         output = Path(args.output)
     else:
         output = input.parent
