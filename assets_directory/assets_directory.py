@@ -86,7 +86,7 @@ def make_json():
         name = f"{args.prefix}{absolute_track_number:03}"
         tag = TinyTag.get(file)
         media_items[name] = {
-            "id": f"asset:///assets/audio/{name}.aac",
+            "id": f"asset:///assets/audio/{name}.m4a",
             "album": tag.album,
             "title": tag.title,
             "displayDescription": tag.comment,
@@ -160,16 +160,17 @@ def transcode_audio():
 
     for file in files:
         name = f"{args.prefix}{absolute_track_number:03}"
-        write_file = output / "assets" / "audio" / f"{name}.aac"
+        write_file = output / "assets" / "audio" / f"{name}.m4a"
         (
             ffmpeg.input(str(file))
             .audio.output(
                 str(write_file),
                 acodec="libfdk_aac",
-                profile="a",
-                # vbr="1",
+                aprofile="aac_he",
+                vbr=0,
+                ab="32k",
+                ar=44100,
                 ac=1,
-                aac_coder="he_aac_v2",
             )
             .overwrite_output()
             .run()
@@ -177,10 +178,9 @@ def transcode_audio():
         absolute_track_number += 1
 
     original_size_bytes = reduce(lambda x, y: x + y, [f.stat().st_size for f in files])
-    # TODO: THIS IS CURSED!
     new_size_bytes = reduce(
         lambda x, y: x + y,
-        [f.stat().st_size for f in Path(output / "assets" / "audio").glob("*.aac")],
+        [f.stat().st_size for f in Path(output / "assets" / "audio").glob("*.m4a")],
     )
     print(original_size_bytes)
     print(new_size_bytes)
