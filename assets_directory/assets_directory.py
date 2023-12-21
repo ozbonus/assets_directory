@@ -131,25 +131,44 @@ def make_json():
 
 
 def make_images():
+    densities: dict[str, int] = {
+        "1.0x": 400,
+        "1.5x": 600,
+        "2.0x": 800,
+        "2.5x": 1024,
+    }
+
     with Image.open(input / args.cover) as cover:
-        for width in [640, 512, 320, 240, 120]:
-            scale_factor = width / cover.width
-            height = int(cover.height * scale_factor)
-            blur_radius = width // 12
+        for density in densities:
+            size: int = densities[density]
+            resized_cover = cover.copy()
+            resized_cover_rgb = resized_cover.convert("RGB")
+            resized_cover_rgb.thumbnail((size, size), resample=Image.Resampling.LANCZOS)
 
-            write_file = output / "assets" / "images" / f"cover_{width}_{height}.png"
-            blurred_file = output / "assets" / "images" / f"cover_blurred_{width}_{height}.png"
-            
-            resized_cover = cover.resize((width, height), Image.Resampling.LANCZOS)
-            blurred_cover = resized_cover.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+            write_file: str
+            if density == "1.0x":
+                write_file = output / "assets" / "images" / "cover.webp"
+            else:
+                write_file = output / "assets" / "images" / density / "cover.webp"
 
-            resized_cover.save(write_file)
-            blurred_cover.save(blurred_file)
+            resized_cover_rgb.format = "WEBP"
+            resized_cover_rgb.save(
+                write_file,
+                quality=95,
+                method=6, # Slower, but better quality.
+            )                      
 
     with Image.open(input / args.art) as art:
-        for size in [640, 512, 320, 240, 120]:
-            write_file = output / "assets" / "images" / f"art_{size}.png"
-            art.resize((size, size), Image.Resampling.LANCZOS).save(write_file)
+        art_rgb = art.convert("RGB")
+        art_rgb.thumbnail((640, 640), Image.Resampling.LANCZOS)
+        art_rgb.format = 'WEBP'
+
+        write_file = output / "assets" / "images" / "art.webp"
+        art_rgb.save(
+            write_file,
+            quality=90,
+            method=6, # Slower, but better quality.
+        )
 
     summary.append("Successfully converted cover and art images.")
 
@@ -205,7 +224,10 @@ if __name__ == "__main__":
 
     if args.json:
         json_dir.mkdir(parents=True, exist_ok=True)
-        images_dir.mkdir(parents=True, exist_ok=True)
+        Path(output / "assets" / "images").mkdir(parents=True, exist_ok=True)
+        Path(output / "assets" / "images" / "1.5x").mkdir(parents=True, exist_ok=True)
+        Path(output / "assets" / "images" / "2.0x").mkdir(parents=True, exist_ok=True)
+        Path(output / "assets" / "images" / "2.5x").mkdir(parents=True, exist_ok=True)
         make_json()
         make_images()
 
