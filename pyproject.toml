@@ -9,9 +9,9 @@ packages = [{include = "assets_directory"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 tinytag = "^1.8.1"
-pillow = "^9.4.0"
 ruff = "^0.0.275"
 ffmpeg-python = "^0.2.0"
+pillow = "^10.1.0"
 
 [tool.ruff]
 line-length = 120
