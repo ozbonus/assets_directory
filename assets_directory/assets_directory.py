@@ -144,14 +144,21 @@ def make_images():
             resized_cover = cover.copy()
             resized_cover_rgb = resized_cover.convert("RGB")
             resized_cover_rgb.thumbnail((size, size), resample=Image.Resampling.LANCZOS)
+            resized_cover_rgb.format = "WEBP"
 
             write_file: str
             if density == "1.0x":
                 write_file = output / "assets" / "images" / "cover.webp"
+                write_blurred_file = output / "assets" / "images" / "cover_blurred.webp"
+                blurred_cover = resized_cover_rgb.filter(ImageFilter.GaussianBlur(radius=30))
+                blurred_cover.save(
+                    write_blurred_file,
+                    quality=95,
+                    method=6,
+                )
             else:
                 write_file = output / "assets" / "images" / density / "cover.webp"
 
-            resized_cover_rgb.format = "WEBP"
             resized_cover_rgb.save(
                 write_file,
                 quality=95,
