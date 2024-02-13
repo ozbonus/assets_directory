@@ -194,7 +194,7 @@ def transcode_audio():
                 acodec="libfdk_aac",
                 aprofile="aac_he",
                 vbr=0,
-                ab="32k",
+                ab="48k",
                 ar=44100,
                 ac=1,
             )
