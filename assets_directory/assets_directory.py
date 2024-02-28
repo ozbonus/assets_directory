@@ -96,6 +96,7 @@ def make_json():
                 "discObject": args.disc_object,
                 "trackObject": args.track_object,
                 "disc": tag.disc or "1",
+                "discName": tag.composer,
                 "discTrack": tag.track.lstrip("0"),
                 "absoluteTrack": str(absolute_track_number),
                 "transcripts": {},
