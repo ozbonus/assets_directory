@@ -3,7 +3,7 @@ import json
 import sys
 from collections import OrderedDict
 from functools import reduce
-from pathlib import Path
+from pathlib import Path, PurePath
 
 import ffmpeg
 from PIL import Image, ImageFilter, UnidentifiedImageError
@@ -30,6 +30,13 @@ def verify_args(args):
 
     if not any([args.json, args.image, args.trans]):
         errors.append("* You must select at least one operation to perform.")
+
+    if args.image:
+        if not (Path(args.input) / "art.jpg").exists():
+            errors.append("* art.jpg was not found in the input directory.")
+        if not (Path(args.input) / "cover.jpg").exists():
+            errors.append("* cover.jpg was not found in the input directory.")
+
 
     if errors:
         print("The following errors were encountered:")
