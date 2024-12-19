@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import subprocess
 from collections import OrderedDict
 from functools import reduce
 from pathlib import Path, PurePath
@@ -21,7 +22,10 @@ def verify_args(args):
     errors: list[str] = []
 
     if not Path(args.input).exists():
-        errors.append(f"* Invalid input directory: {args.input}")
+        print("* The input directory is invalid.")
+        exit("Exiting without side effects.")
+
+    input_dir = Path(args.input)
 
     if args.output is None:
         pass
@@ -31,14 +35,20 @@ def verify_args(args):
     if not any([args.json, args.image, args.trans]):
         errors.append("* You must select at least one operation to perform.")
 
+    if args.json and not any(input_dir.glob(".mp3")):
+        errors.append("* No audio files were found.")
+
     if args.image:
         if not (Path(args.input) / "art.jpg").exists():
             errors.append("* art.jpg was not found in the input directory.")
         if not (Path(args.input) / "cover.jpg").exists():
             errors.append("* cover.jpg was not found in the input directory.")
-
+    
+    if args.trans:
+        pass
 
     if errors:
+        print("")
         print("The following errors were encountered:")
         [print(e) for e in errors]
         exit("Exiting without side effects.")
@@ -54,6 +64,7 @@ def print_work_order():
     else:
         print(f"Output directory: {input_directory}")
 
+    print("")
     print("The following operations will be carried out:")
 
     if args.json:
