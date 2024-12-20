@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import subprocess
 from collections import OrderedDict
 from functools import reduce
 from pathlib import Path, PurePath
@@ -21,7 +22,10 @@ def verify_args(args):
     errors: list[str] = []
 
     if not Path(args.input).exists():
-        errors.append(f"* Invalid input directory: {args.input}")
+        print("* The input directory is invalid.")
+        exit("Exiting without side effects.")
+
+    input_dir = Path(args.input)
 
     if args.output is None:
         pass
@@ -31,17 +35,52 @@ def verify_args(args):
     if not any([args.json, args.image, args.trans]):
         errors.append("* You must select at least one operation to perform.")
 
+    if args.json and not any(input_dir.glob(".mp3")):
+        errors.append("* No audio files were found.")
+
     if args.image:
         if not (Path(args.input) / "art.jpg").exists():
             errors.append("* art.jpg was not found in the input directory.")
         if not (Path(args.input) / "cover.jpg").exists():
             errors.append("* cover.jpg was not found in the input directory.")
 
+    if args.trans:
+        pass
 
     if errors:
         print("The following errors were encountered:")
         [print(e) for e in errors]
         exit("Exiting without side effects.")
+
+
+def verify_ffmpeg():
+    """Verify the presence of ffmpeg and fdk_aac.
+
+    First check for the presence of ffmpeg and exit with code 1 if it is not
+    found. If ffmpeg is present on the system, then check for the presence of
+    libfdk_aac by searching the output of `ffmpeg -encoders`, exiting with code
+    1 if it is not found.
+    """
+    command = ["ffmpeg", "-encoders"]
+
+    try:
+        process = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        output = process.stdout
+        if "libfdk_aac" not in output:
+            print("ffmpeg was found, but libfdk_aac was not.")
+            sys.exit("Exiting without side effects.")
+    except FileNotFoundError:
+        print("ffmpeg installation was not found.")
+        sys.exit("Exiting without side effects.")
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{' '.join(command)}' failed with return code {e.returncode}:")
+        print(f"Stderr:\n{e.stderr}")
+        sys, exit(1)
 
 
 def print_work_order():
@@ -54,6 +93,7 @@ def print_work_order():
     else:
         print(f"Output directory: {input_directory}")
 
+    print("")
     print("The following operations will be carried out:")
 
     if args.json:
@@ -88,4 +128,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
+    verify_ffmpeg()
     print_work_order()
