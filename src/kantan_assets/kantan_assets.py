@@ -53,6 +53,36 @@ def verify_args(args):
         exit("Exiting without side effects.")
 
 
+def verify_ffmpeg():
+    """Verify the presence of ffmpeg and fdk_aac.
+
+    First check for the presence of ffmpeg and exit with code 1 if it is not
+    found. If ffmpeg is present on the system, then check for the presence of
+    libfdk_aac by searching the output of `ffmpeg -encoders`, exiting with code
+    1 if it is not found.
+    """
+    command = ["ffmpeg", "-encoders"]
+
+    try:
+        process = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        output = process.stdout
+        if "libfdk_aac" not in output:
+            print("ffmpeg was found, but libfdk_aac was not.")
+            sys.exit("Exiting without side effects.")
+    except FileNotFoundError:
+        print("ffmpeg installation was not found.")
+        sys.exit("Exiting without side effects.")
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{' '.join(command)}' failed with return code {e.returncode}:")
+        print(f"Stderr:\n{e.stderr}")
+        sys, exit(1)
+
+
 def print_work_order():
     input_directory = Path(args.input).absolute()
     print(f"Input directory: {input_directory}")
@@ -98,4 +128,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
+    verify_ffmpeg()
     print_work_order()
