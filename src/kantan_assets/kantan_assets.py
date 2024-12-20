@@ -43,7 +43,7 @@ def verify_args(args):
             errors.append("* art.jpg was not found in the input directory.")
         if not (Path(args.input) / "cover.jpg").exists():
             errors.append("* cover.jpg was not found in the input directory.")
-    
+
     if args.trans:
         pass
 
