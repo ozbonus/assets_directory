@@ -48,7 +48,6 @@ def verify_args(args):
         pass
 
     if errors:
-        print("")
         print("The following errors were encountered:")
         [print(e) for e in errors]
         exit("Exiting without side effects.")
