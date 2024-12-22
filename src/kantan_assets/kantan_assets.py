@@ -53,7 +53,7 @@ def verify_args(args):
         exit("Exiting without side effects.")
 
 
-def verify_ffmpeg():
+def verify_ffmpeg(command: list[str]):
     """Verify the presence of ffmpeg and fdk_aac.
 
     First check for the presence of ffmpeg and exit with code 1 if it is not
@@ -61,7 +61,6 @@ def verify_ffmpeg():
     libfdk_aac by searching the output of `ffmpeg -encoders`, exiting with code
     1 if it is not found.
     """
-    command = ["ffmpeg", "-encoders"]
 
     try:
         process = subprocess.run(
@@ -128,5 +127,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
-    verify_ffmpeg()
+    verify_ffmpeg(["ffmpeg", "-encoders"])
     print_work_order()
