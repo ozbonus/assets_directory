@@ -53,7 +53,7 @@ def verify_args(args):
         exit("Exiting without side effects.")
 
 
-def verify_ffmpeg(command: list[str]):
+def verify_ffmpeg(command: list[str], library: str):
     """Verify the presence of ffmpeg and fdk_aac.
 
     First check for the presence of ffmpeg and exit with code 1 if it is not
@@ -70,16 +70,32 @@ def verify_ffmpeg(command: list[str]):
             check=True,
         )
         output = process.stdout
-        if "libfdk_aac" not in output:
+        if library not in output:
             print("ffmpeg was found, but libfdk_aac was not.")
             sys.exit("Exiting without side effects.")
-    except FileNotFoundError:
-        print("ffmpeg installation was not found.")
-        sys.exit("Exiting without side effects.")
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"ffmpeg was not found, exiting. {e}")
     except subprocess.CalledProcessError as e:
         print(f"Command '{' '.join(command)}' failed with return code {e.returncode}:")
         print(f"Stderr:\n{e.stderr}")
-        sys, exit(1)
+        raise e
+
+def verify_images(cover: str, art: str):
+    """Verify that the cover and art images follow requirements.
+
+    Refer to the project's README.md for details about what constitutes
+    acceptable cover and art images.
+
+    Args:
+        cover: The book cover image.
+        art: The album art cover image.
+    
+    Raises:
+        ?Error: If either image is a malformed file.
+        ?Error: If either image is not of the correct file type.
+        ?Error: If the art image is not square.
+        ?Error: Does this need any more error types?
+    """
 
 
 def print_work_order():
@@ -127,5 +143,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
-    verify_ffmpeg(["ffmpeg", "-encoders"])
+    verify_ffmpeg(["ffmpeg", "-encoders"], "libfdk_aac")
     print_work_order()
