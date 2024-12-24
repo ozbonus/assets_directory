@@ -53,13 +53,24 @@ def verify_args(args):
         exit("Exiting without side effects.")
 
 
-def verify_ffmpeg(command: list[str]):
+def verify_ffmpeg(
+    command: list[str] = ["ffmpeg", "-encoders"],
+    library: str = "libfdk_aac",
+) -> bool:
     """Verify the presence of ffmpeg and fdk_aac.
 
     First check for the presence of ffmpeg and exit with code 1 if it is not
     found. If ffmpeg is present on the system, then check for the presence of
     libfdk_aac by searching the output of `ffmpeg -encoders`, exiting with code
     1 if it is not found.
+
+    Args:
+        command: ffmpeg -encoders
+        library: libfdk_aac
+
+    Raises:
+        FileNotFoundError: If ffmpeg is not found.
+        ValueError: If "libfdk_aac" is not in the output of the command.
     """
 
     try:
@@ -70,16 +81,84 @@ def verify_ffmpeg(command: list[str]):
             check=True,
         )
         output = process.stdout
-        if "libfdk_aac" not in output:
-            print("ffmpeg was found, but libfdk_aac was not.")
-            sys.exit("Exiting without side effects.")
+        if library not in output:
+            raise ValueError("libfdk_aac was not found, exiting.")
+        return True
     except FileNotFoundError:
-        print("ffmpeg installation was not found.")
-        sys.exit("Exiting without side effects.")
-    except subprocess.CalledProcessError as e:
-        print(f"Command '{' '.join(command)}' failed with return code {e.returncode}:")
-        print(f"Stderr:\n{e.stderr}")
-        sys, exit(1)
+        raise FileNotFoundError("ffmpeg was not found, exiting.")
+
+
+def verify_cover(file: Path | str):
+    """Verify cover image presence and requirements.
+
+    Args:
+        file: Location of the image.
+
+    Raises:
+        OSError: If the file cannot be opened as an image.
+        ValueError: If the image is too low resolution.
+    """
+    try:
+        im = Image.open(file)
+    except IOError:
+        raise OSError("cover.jpg is not a valid image file.")
+
+    min_size = 1000
+    width: int = im.size[0]
+    height: int = im.size[1]
+
+    if width < min_size or height < min_size:
+        raise ValueError(f"cover.jpg resolution is too low: {width}x{height}")
+
+    im.close()
+
+
+def verify_art(file: Path | str):
+    """Verify cover image presence and requirements.
+
+    Args:
+        file: Location of the image.
+
+    Raises:
+        OSError: If the file cannot be opened as an image.
+        ValueError: If the image is too low resolution.
+        ValueError: If the art image is not perfectly square.
+    """
+    try:
+        im = Image.open(file)
+    except OSError:
+        raise OSError("art.jpg is not a valid image file.")
+
+    min_size = 1000
+    width: int = im.size[0]
+    height: int = im.size[1]
+
+    if width < min_size or height < min_size:
+        raise ValueError(f"art.jpg resolution is too low: {width}x{height}")
+    
+    if not width == height:
+        raise ValueError(f"art.jpg is not square: {width}x{height}")
+
+    im.close()
+
+
+def verify_images(cover: str, art: str):
+    """Verify that the cover and art images follow requirements.
+
+    Refer to the project's README.md for details about what constitutes
+    acceptable cover and art images.
+
+    Args:
+        cover: The book cover image.
+        art: The album art cover image.
+
+    Raises:
+        ?Error: If either image is a malformed file.
+        ?Error: If either image is not of the correct file type.
+        ?Error: If the art image is not square.
+        ?Error: Does this need any more error types?
+    """
+    pass
 
 
 def print_work_order():
@@ -127,5 +206,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
-    verify_ffmpeg(["ffmpeg", "-encoders"])
+    verify_ffmpeg()
     print_work_order()

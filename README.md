@@ -12,7 +12,7 @@ A high resolution cover image named `cover.jpg` or `cover.png` and a high resolu
 
 ## ffmpeg and codec support
 
-To minimize the size of Kantan Player apps, audio files are transcoded with the Advanced Audio Codec (AAC) via ffmpeg and the Fraunhofer FDK AAC library (`fdk_aac`). Because of the latter's licensing restrictions, prebuilt ffmpeg binaries do not include the library, so there are extra steps to take. To check if you already have ffmpeg installed with `fdk_aac` run this command and check for it in the output:
+To minimize the size of Kantan Player apps, audio files are transcoded with the Advanced Audio Codec (AAC) via ffmpeg and the Fraunhofer FDK AAC library (`libfdk_aac`). Because of the latter's licensing restrictions, prebuilt ffmpeg binaries do not include the library, so there are extra steps to take. To check if you already have ffmpeg installed with `libfdk_aac` run this command and check for it in the output:
 
 ```shell
 ffmpeg -encoders
