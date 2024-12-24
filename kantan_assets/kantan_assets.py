@@ -53,13 +53,24 @@ def verify_args(args):
         exit("Exiting without side effects.")
 
 
-def verify_ffmpeg(command: list[str], library: str):
+def verify_ffmpeg(
+    command: list[str] = ["ffmpeg", "-encoders"],
+    library: str = "libfdk_aac",
+) -> bool:
     """Verify the presence of ffmpeg and fdk_aac.
 
     First check for the presence of ffmpeg and exit with code 1 if it is not
     found. If ffmpeg is present on the system, then check for the presence of
     libfdk_aac by searching the output of `ffmpeg -encoders`, exiting with code
     1 if it is not found.
+
+    Args:
+        command: ffmpeg -encoders
+        library: libfdk_aac
+
+    Raises:
+        FileNotFoundError: If ffmpeg is not found.
+        ValueError: If "libfdk_aac" is not in the output of the command.
     """
 
     try:
@@ -71,14 +82,10 @@ def verify_ffmpeg(command: list[str], library: str):
         )
         output = process.stdout
         if library not in output:
-            print("ffmpeg was found, but libfdk_aac was not.")
-            sys.exit("Exiting without side effects.")
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"ffmpeg was not found, exiting. {e}")
-    except subprocess.CalledProcessError as e:
-        print(f"Command '{' '.join(command)}' failed with return code {e.returncode}:")
-        print(f"Stderr:\n{e.stderr}")
-        raise e
+            raise ValueError("libfdk_aac was not found, exiting.")
+        return True
+    except FileNotFoundError:
+        raise FileNotFoundError("ffmpeg was not found, exiting.")
 
 def verify_images(cover: str, art: str):
     """Verify that the cover and art images follow requirements.
