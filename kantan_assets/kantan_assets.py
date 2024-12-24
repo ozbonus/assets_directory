@@ -150,5 +150,5 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
-    verify_ffmpeg(["ffmpeg", "-encoders"], "libfdk_aac")
+    verify_ffmpeg()
     print_work_order()
