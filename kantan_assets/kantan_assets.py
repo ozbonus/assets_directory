@@ -135,30 +135,11 @@ def verify_art(file: Path | str):
 
     if width < min_size or height < min_size:
         raise ValueError(f"art.jpg resolution is too low: {width}x{height}")
-    
+
     if not width == height:
         raise ValueError(f"art.jpg is not square: {width}x{height}")
 
     im.close()
-
-
-def verify_images(cover: str, art: str):
-    """Verify that the cover and art images follow requirements.
-
-    Refer to the project's README.md for details about what constitutes
-    acceptable cover and art images.
-
-    Args:
-        cover: The book cover image.
-        art: The album art cover image.
-
-    Raises:
-        ?Error: If either image is a malformed file.
-        ?Error: If either image is not of the correct file type.
-        ?Error: If the art image is not square.
-        ?Error: Does this need any more error types?
-    """
-    pass
 
 
 def print_work_order():
