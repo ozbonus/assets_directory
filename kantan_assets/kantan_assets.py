@@ -87,6 +87,61 @@ def verify_ffmpeg(
     except FileNotFoundError:
         raise FileNotFoundError("ffmpeg was not found, exiting.")
 
+
+def verify_cover(file: Path | str):
+    """Verify cover image presence and requirements.
+
+    Args:
+        file: Location of the image.
+
+    Raises:
+        OSError: If the file cannot be opened as an image.
+        ValueError: If the image is too low resolution.
+    """
+    try:
+        im = Image.open(file)
+    except IOError:
+        raise OSError("cover.jpg is not a valid image file.")
+
+    min_size = 1000
+    width: int = im.size[0]
+    height: int = im.size[1]
+
+    if width < min_size or height < min_size:
+        raise ValueError(f"cover.jpg resolution is too low: {width}x{height}")
+
+    im.close()
+
+
+def verify_art(file: Path | str):
+    """Verify cover image presence and requirements.
+
+    Args:
+        file: Location of the image.
+
+    Raises:
+        OSError: If the file cannot be opened as an image.
+        ValueError: If the image is too low resolution.
+        ValueError: If the art image is not perfectly square.
+    """
+    try:
+        im = Image.open(file)
+    except OSError:
+        raise OSError("art.jpg is not a valid image file.")
+
+    min_size = 1000
+    width: int = im.size[0]
+    height: int = im.size[1]
+
+    if width < min_size or height < min_size:
+        raise ValueError(f"art.jpg resolution is too low: {width}x{height}")
+    
+    if not width == height:
+        raise ValueError(f"art.jpg is not square: {width}x{height}")
+
+    im.close()
+
+
 def verify_images(cover: str, art: str):
     """Verify that the cover and art images follow requirements.
 
@@ -96,13 +151,14 @@ def verify_images(cover: str, art: str):
     Args:
         cover: The book cover image.
         art: The album art cover image.
-    
+
     Raises:
         ?Error: If either image is a malformed file.
         ?Error: If either image is not of the correct file type.
         ?Error: If the art image is not square.
         ?Error: Does this need any more error types?
     """
+    pass
 
 
 def print_work_order():
