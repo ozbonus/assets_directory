@@ -56,7 +56,7 @@ def verify_args(args):
 def verify_ffmpeg(
     command: list[str] = ["ffmpeg", "-encoders"],
     library: str = "libfdk_aac",
-) -> bool:
+):
     """Verify the presence of ffmpeg and fdk_aac.
 
     First check for the presence of ffmpeg and exit with code 1 if it is not
@@ -71,6 +71,9 @@ def verify_ffmpeg(
     Raises:
         FileNotFoundError: If ffmpeg is not found.
         ValueError: If "libfdk_aac" is not in the output of the command.
+    
+    Returns:
+        None
     """
 
     try:
@@ -89,14 +92,22 @@ def verify_ffmpeg(
 
 
 def verify_cover(file: Path | str):
-    """Verify cover image presence and requirements.
+    """Verifies an image file meets requirements for cover art.
+
+    This function checks the following criteria for the provided image file: a
+    valid image format as defined by Pillow and minimum resolution of 1000
+    pixels horizontally and vertically.
 
     Args:
-        file: Location of the image.
+        file: The path to the image file, as a string or Path object.
 
     Raises:
-        OSError: If the file cannot be opened as an image.
-        ValueError: If the image is too low resolution.
+        OSError: If the file cannot be opened as an image (e.g., corrupted file,
+        not a valid image format).
+        ValueError: If the image resolution is below 1000 pixels.
+
+    Returns:
+        None
     """
     try:
         im = Image.open(file)
@@ -114,15 +125,23 @@ def verify_cover(file: Path | str):
 
 
 def verify_art(file: Path | str):
-    """Verify cover image presence and requirements.
+    """Verifies an image file meets requirements for cover art.
+
+    This function checks the following criteria for the provided image file: a
+    valid image format as defined by Pillow, a minimum resolution of 1000
+    pixels horizontally and vertically, and a perfectly square aspect ratio.
 
     Args:
-        file: Location of the image.
+        file: The path to the image file, as a string or Path object.
 
     Raises:
-        OSError: If the file cannot be opened as an image.
-        ValueError: If the image is too low resolution.
-        ValueError: If the art image is not perfectly square.
+        OSError: If the file cannot be opened as an image (e.g., corrupted file,
+        not a valid image format).
+        ValueError: If the image resolution is below 1000 pixels.
+        ValueError: If the image is not perfectly square (width != height).
+
+    Returns:
+        None
     """
     try:
         im = Image.open(file)
@@ -140,6 +159,44 @@ def verify_art(file: Path | str):
         raise ValueError(f"art.jpg is not square: {width}x{height}")
 
     im.close()
+
+
+def verify_audio(file: Path | str):
+    """Verifies that an audio file contains required metadata tags.
+
+    This function uses TinyTag to extract metadata from an audio file and
+    checks if all required tags (filename, title, album, artist, disc,
+    disc_total, track, track_total, and duration) are present.
+
+    Args:
+        file: The path to the audio file, as a string or Path object.
+
+    Raises:
+        ValueError: If any of the required metadata tags are missing
+            (i.e., evaluate to a falsy value like None, empty string, or 0).
+        FileNotFoundError: If the provided file does not exist.
+
+    Returns:
+        None.
+    """
+    tag = TinyTag.get(file)
+    required_tags = [
+        tag.filename,
+        tag.title,
+        tag.album,
+        tag.artist,
+        tag.disc,
+        tag.disc_total,
+        tag.track,
+        tag.track_total,
+        tag.duration,
+    ]
+    if not all(required_tags):
+        raise ValueError(f"{tag.filename} is missing required metadata.")
+
+
+def verify_all_audio(directory: Path | str):
+    pass
 
 
 def print_work_order():
