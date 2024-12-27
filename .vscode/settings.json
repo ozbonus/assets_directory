@@ -1,6 +1,4 @@
 {
-  "python.formatting.provider": "ruff",
-  "python.analysis.typeCheckingMode": "off",
   "python.testing.pytestArgs": [
     "kantan_assets"
   ],
