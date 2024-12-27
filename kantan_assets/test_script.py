@@ -1,10 +1,12 @@
 import pytest
+from pathlib import Path
 from kantan_assets import (
     verify_ffmpeg,
     verify_cover,
     verify_art,
     verify_audio,
     verify_all_audio,
+    extract_metadata,
 )
 
 
@@ -114,3 +116,38 @@ class TestVerifyAllAudio:
         ]
         with pytest.raises(ValueError, match="2"):
             verify_all_audio(files)
+
+
+class TestExtractMetaData:
+    def test_extract_metadata_1(self):
+        file = Path("./test_assets/audio_good_1.mp3")
+        expected: dict[str, str | int | None] = {
+            "filename": "audio_good_1",
+            "album": "Test Album",
+            "artist": "Test Artist",
+            "title": "Test Title",
+            "displayDescription": "Test Comment",
+            "duration": 30040,
+            "disc": 1,
+            "discTotal": 1,
+            "track": 1,
+            "trackTotal": 2,
+        }
+        assert extract_metadata(file) == expected
+
+    def test_extract_metadata_2(self):
+        file = Path("./test_assets/audio_good_2.mp3")
+        expected: dict[str, str | int | None] = {
+            "filename": "audio_good_2",
+            "album": "Test Album",
+            "artist": "Test Artist",
+            "title": "Test Title",
+            "displayDescription": "Test Comment",
+            "duration": 30040,
+            "disc": 1,
+            "discTotal": 1,
+            "track": 2,
+            "trackTotal": 2,
+        }
+        assert extract_metadata(file) == expected
+

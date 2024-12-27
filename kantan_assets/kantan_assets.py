@@ -254,10 +254,18 @@ def print_work_order():
         print("* Transcode audio file.")
 
 
-def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
+def extract_metadata(path: Path) -> dict[str, str | int]:
     """Extract metadata from one audio file.
 
-    Th
+    Args:
+        path: A Path object that leads to an audio file.
+
+    Returns:
+        A dictionary in a format consumable by Kantan Player apps.
+    
+    Raises:
+        None. Before reaching this function an audio will have already bee
+        verified to contain all of the required metadata.
     """
     tag: TinyTag = TinyTag.get(path)
 
