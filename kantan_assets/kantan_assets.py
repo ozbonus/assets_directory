@@ -3,6 +3,7 @@ import json
 import sys
 import subprocess
 from collections import OrderedDict
+from collections.abc import Generator
 from functools import reduce
 from pathlib import Path, PurePath
 
@@ -71,7 +72,7 @@ def verify_ffmpeg(
     Raises:
         FileNotFoundError: If ffmpeg is not found.
         ValueError: If "libfdk_aac" is not in the output of the command.
-    
+
     Returns:
         None
     """
@@ -195,8 +196,37 @@ def verify_audio(file: Path | str):
         raise ValueError(f"{tag.filename} is missing required metadata.")
 
 
-def verify_all_audio(directory: Path | str):
-    pass
+def verify_all_audio(files: Generator[Path | str] | list[Path | str]):
+    """Verify audio files have required metadata and report how many do not.
+
+    Args:
+        files: A collection of audio files as either Path objects or string,
+        contained within a either a generator or a list.
+
+    Raises:
+        FileNotFoundError: If any files are not found and includes the number of
+        missing files in the message.
+
+    Returns:
+        None
+    """
+
+    invalid_files = 0
+    missing_files = 0
+
+    for file in files:
+        try:
+            verify_audio(file)
+        except ValueError:
+            invalid_files += 1
+        except FileNotFoundError:
+            missing_files += 1
+
+    if missing_files:
+        raise FileNotFoundError(f"{missing_files} file(s) not found.")
+
+    if invalid_files:
+        raise ValueError(f"{invalid_files} file(s) missing required tags.")
 
 
 def print_work_order():
