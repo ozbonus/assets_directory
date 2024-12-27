@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import sys
@@ -253,6 +255,10 @@ def print_work_order():
 
 
 def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
+    """Extract metadata from one audio file.
+
+    Th
+    """
     tag: TinyTag = TinyTag.get(path)
 
     metadata: dict[str, str | int | None] = {
