@@ -1,7 +1,0 @@
-{
-  "python.testing.pytestArgs": [
-    "kantan_assets"
-  ],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
-}

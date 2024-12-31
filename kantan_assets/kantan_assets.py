@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 import argparse
 import json
 import sys
 import subprocess
+from tqdm import tqdm
 from collections import OrderedDict
 from collections.abc import Generator
 from functools import reduce
@@ -206,26 +205,19 @@ def verify_all_audio(files: Generator[Path | str] | list[Path | str]):
         contained within a either a generator or a list.
 
     Raises:
-        FileNotFoundError: If any files are not found and includes the number of
-        missing files in the message.
+        ValueError: If any files are missing required metadata tags.
 
     Returns:
         None
     """
 
     invalid_files = 0
-    missing_files = 0
 
     for file in files:
         try:
             verify_audio(file)
         except ValueError:
             invalid_files += 1
-        except FileNotFoundError:
-            missing_files += 1
-
-    if missing_files:
-        raise FileNotFoundError(f"{missing_files} file(s) not found.")
 
     if invalid_files:
         raise ValueError(f"{invalid_files} file(s) missing required tags.")
@@ -254,13 +246,20 @@ def print_work_order():
         print("* Transcode audio file.")
 
 
-def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
+def extract_metadata(path: Path) -> dict[str, str | int]:
     """Extract metadata from one audio file.
 
-    Th
+    Args:
+        path: A Path object that leads to an audio file.
+
+    Returns:
+        A dictionary in a format consumable by Kantan Player apps.
+
+    Raises:
+        None. Before reaching this function an audio will have already bee
+        verified to contain all of the required metadata.
     """
     tag: TinyTag = TinyTag.get(path)
-
     metadata: dict[str, str | int | None] = {
         "filename": path.stem,
         "album": tag.album,
@@ -273,8 +272,51 @@ def extract_metadata(path: str | Path, index: int) -> dict[str, str | int]:
         "track": tag.track,
         "trackTotal": tag.track_total,
     }
-
     return metadata
+
+
+def extract_all_metadata(files: list[Path]) -> OrderedDict:
+    """Extract metadata from a list of audio files.
+
+    Args:
+        list: A list of Path objects to audio files.
+
+    Raises:
+        None
+
+    Returns:
+        An OrderedDict. Every key is a filename stem of on of the audio files
+        and the values are meta as created by the `extract_metadata` function.
+    """
+    tracks_data = OrderedDict()
+    for file in tqdm(files):
+        filename = file.stem
+        data = extract_metadata(file)
+        tracks_data[filename] = data
+    return tracks_data
+
+
+def make_directories(input_dir: Path):
+    Path(input_dir / "assets").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "1.5x").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "2.0x").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "2.5x").mkdir(parents=True, exist_ok=True)
+
+
+def write_tracks_json(data: OrderedDict, assets_dir: Path):
+    """Write a json file of all tracks' metadata.
+
+    The output file should be formatted such that it is human-readable.
+    Non-ascii characters are supported.
+
+    Args:
+        data: An OrderedDict containing all tracks' metadata.
+        assets_dir: A Path object leading to the output assets directory.
+    """
+    file_path = Path(assets_dir / "tracks.json")
+    with open(file_path, "w", encoding="utf-8") as write_file:
+        json.dump(data, write_file, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":
