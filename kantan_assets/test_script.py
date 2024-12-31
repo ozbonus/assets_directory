@@ -40,6 +40,10 @@ images_20x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.0x")
 images_25x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.5x")
 
 tracks_json_file = Path(assets_dir / "tracks.json")
+cover_10_file = Path(images_dir / "cover.webp")
+cover_15_file = Path(images_15x_dir / "cover.webp")
+cover_20_file = Path(images_20x_dir / "cover.webp")
+cover_25_file = Path(images_25x_dir / "cover.webp")
 
 test_metadata_dict = OrderedDict(
     {
