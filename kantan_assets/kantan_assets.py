@@ -320,7 +320,4 @@ def write_tracks_json(data: OrderedDict, assets_dir: Path):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    verify_args(args)
-    verify_ffmpeg()
-    print_work_order()
+    pass
