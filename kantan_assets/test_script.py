@@ -1,4 +1,5 @@
 import pytest
+import json
 from pathlib import Path
 from collections import OrderedDict
 from kantan_assets import (
@@ -10,6 +11,7 @@ from kantan_assets import (
     extract_metadata,
     extract_all_metadata,
     make_directories,
+    write_tracks_json,
 )
 
 TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
@@ -30,11 +32,43 @@ art_not_square = asset_path("art_not_square.jpg")
 audio_good_1 = asset_path("audio_good_1.mp3")
 audio_good_2 = asset_path("audio_good_2.mp3")
 audio_no_tags = asset_path("audio_no_tags.mp3")
+
 assets_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
 images_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images")
 images_15x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "1.5x")
 images_20x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.0x")
 images_25x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.5x")
+
+tracks_json_file = Path(assets_dir / "tracks.json")
+
+test_metadata_dict = OrderedDict(
+    {
+        "audio_good_1": {
+            "filename": "audio_good_1",
+            "album": "Test Album",
+            "artist": "Test Artist",
+            "title": "Test Title",
+            "displayDescription": "Test Comment",
+            "duration": 30040,
+            "disc": 1,
+            "discTotal": 1,
+            "track": 1,
+            "trackTotal": 2,
+        },
+        "audio_good_2": {
+            "filename": "audio_good_2",
+            "album": "Test Album",
+            "artist": "Test Artist",
+            "title": "Test Title",
+            "displayDescription": "Test Comment",
+            "duration": 30040,
+            "disc": 1,
+            "discTotal": 1,
+            "track": 2,
+            "trackTotal": 2,
+        },
+    }
+)
 
 
 class TestVerifyFfmpeg:
@@ -147,35 +181,8 @@ class TestExtractMetaData:
 class TestExtractAllMetaData:
     def test_extract_all_metadata(self):
         files = [audio_good_1, audio_good_2]
-        expected = OrderedDict(
-            {
-                "audio_good_1": {
-                    "filename": "audio_good_1",
-                    "album": "Test Album",
-                    "artist": "Test Artist",
-                    "title": "Test Title",
-                    "displayDescription": "Test Comment",
-                    "duration": 30040,
-                    "disc": 1,
-                    "discTotal": 1,
-                    "track": 1,
-                    "trackTotal": 2,
-                },
-                "audio_good_2": {
-                    "filename": "audio_good_2",
-                    "album": "Test Album",
-                    "artist": "Test Artist",
-                    "title": "Test Title",
-                    "displayDescription": "Test Comment",
-                    "duration": 30040,
-                    "disc": 1,
-                    "discTotal": 1,
-                    "track": 2,
-                    "trackTotal": 2,
-                },
-            }
-        )
-        assert extract_all_metadata(files) == expected
+        assert extract_all_metadata(files) == test_metadata_dict
+
 
 class TestMakeDirectories:
     def test_make_directories(self):
@@ -189,4 +196,22 @@ class TestMakeDirectories:
         images_20x_dir.rmdir()
         images_25x_dir.rmdir()
         images_dir.rmdir()
+        assets_dir.rmdir()
+
+
+class TestWriteTracksJson:
+    def test_write_tracks_json_writes_file(self):
+        assets_dir.mkdir()
+        write_tracks_json(test_metadata_dict, assets_dir)
+        assert tracks_json_file.exists()
+        tracks_json_file.unlink()
+        assets_dir.rmdir()
+
+    def test_tracks_json_matches_data(self):
+        assets_dir.mkdir()
+        write_tracks_json(test_metadata_dict, assets_dir)
+        with open(tracks_json_file, "r") as read_file:
+            loaded_data = json.load(read_file, object_pairs_hook=OrderedDict)
+        assert loaded_data == test_metadata_dict
+        tracks_json_file.unlink()
         assets_dir.rmdir()

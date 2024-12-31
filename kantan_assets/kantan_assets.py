@@ -302,6 +302,23 @@ def make_directories(input_dir: Path):
     Path(input_dir / "assets" / "images" / "1.5x").mkdir(parents=True, exist_ok=True)
     Path(input_dir / "assets" / "images" / "2.0x").mkdir(parents=True, exist_ok=True)
     Path(input_dir / "assets" / "images" / "2.5x").mkdir(parents=True, exist_ok=True)
+
+
+def write_tracks_json(data: OrderedDict, assets_dir: Path):
+    """Write a json file of all tracks' metadata.
+
+    The output file should be formatted such that it is human-readable.
+    Non-ascii characters are supported.
+
+    Args:
+        data: An OrderedDict containing all tracks' metadata.
+        assets_dir: A Path object leading to the output assets directory.
+    """
+    file_path = Path(assets_dir / "tracks.json")
+    with open(file_path, "w", encoding="utf-8") as write_file:
+        json.dump(data, write_file, indent=4, ensure_ascii=False)
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
