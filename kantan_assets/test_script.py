@@ -9,6 +9,7 @@ from kantan_assets import (
     verify_all_audio,
     extract_metadata,
     extract_all_metadata,
+    make_directories,
 )
 
 TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
@@ -29,6 +30,11 @@ art_not_square = asset_path("art_not_square.jpg")
 audio_good_1 = asset_path("audio_good_1.mp3")
 audio_good_2 = asset_path("audio_good_2.mp3")
 audio_no_tags = asset_path("audio_no_tags.mp3")
+assets_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
+images_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images")
+images_15x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "1.5x")
+images_20x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.0x")
+images_25x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.5x")
 
 
 class TestVerifyFfmpeg:
@@ -170,3 +176,17 @@ class TestExtractAllMetaData:
             }
         )
         assert extract_all_metadata(files) == expected
+
+class TestMakeDirectories:
+    def test_make_directories(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        assert assets_dir.exists()
+        assert images_dir.exists()
+        assert images_15x_dir.exists()
+        assert images_20x_dir.exists()
+        assert images_25x_dir.exists()
+        images_15x_dir.rmdir()
+        images_20x_dir.rmdir()
+        images_25x_dir.rmdir()
+        images_dir.rmdir()
+        assets_dir.rmdir()

@@ -296,6 +296,12 @@ def extract_all_metadata(files: list[Path]) -> OrderedDict:
     return tracks_data
 
 
+def make_directories(input_dir: Path):
+    Path(input_dir / "assets").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "1.5x").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "2.0x").mkdir(parents=True, exist_ok=True)
+    Path(input_dir / "assets" / "images" / "2.5x").mkdir(parents=True, exist_ok=True)
 if __name__ == "__main__":
     args = parser.parse_args()
     verify_args(args)
