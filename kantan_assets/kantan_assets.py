@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 import subprocess
+from tqdm import tqdm
 from collections import OrderedDict
 from collections.abc import Generator
 from functools import reduce
@@ -288,7 +289,7 @@ def extract_all_metadata(files: list[Path]) -> OrderedDict:
         and the values are meta as created by the `extract_metadata` function.
     """
     tracks_data = OrderedDict()
-    for file in files:
+    for file in tqdm(files):
         filename = file.stem
         data = extract_metadata(file)
         tracks_data[filename] = data
