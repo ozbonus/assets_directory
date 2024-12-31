@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-import os
+from collections import OrderedDict
 from kantan_assets import (
     verify_ffmpeg,
     verify_cover,
@@ -8,11 +8,14 @@ from kantan_assets import (
     verify_audio,
     verify_all_audio,
     extract_metadata,
+    extract_all_metadata,
 )
+
+TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
 
 
 def asset_path(filename: str) -> Path:
-    relative_path = Path("kantan_assets/test_assets") / filename
+    relative_path = TEST_ASSETS_DIRECTORY / filename
     return relative_path.resolve()
 
 
@@ -133,3 +136,37 @@ class TestExtractMetaData:
             "trackTotal": 2,
         }
         assert extract_metadata(file) == expected
+
+
+class TestExtractAllMetaData:
+    def test_extract_all_metadata(self):
+        files = [audio_good_1, audio_good_2]
+        expected = OrderedDict(
+            {
+                "audio_good_1": {
+                    "filename": "audio_good_1",
+                    "album": "Test Album",
+                    "artist": "Test Artist",
+                    "title": "Test Title",
+                    "displayDescription": "Test Comment",
+                    "duration": 30040,
+                    "disc": 1,
+                    "discTotal": 1,
+                    "track": 1,
+                    "trackTotal": 2,
+                },
+                "audio_good_2": {
+                    "filename": "audio_good_2",
+                    "album": "Test Album",
+                    "artist": "Test Artist",
+                    "title": "Test Title",
+                    "displayDescription": "Test Comment",
+                    "duration": 30040,
+                    "disc": 1,
+                    "discTotal": 1,
+                    "track": 2,
+                    "trackTotal": 2,
+                },
+            }
+        )
+        assert extract_all_metadata(files) == expected

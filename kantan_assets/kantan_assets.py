@@ -1,4 +1,3 @@
-
 import argparse
 import json
 import sys
@@ -260,7 +259,6 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
         verified to contain all of the required metadata.
     """
     tag: TinyTag = TinyTag.get(path)
-
     metadata: dict[str, str | int | None] = {
         "filename": path.stem,
         "album": tag.album,
@@ -273,8 +271,16 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
         "track": tag.track,
         "trackTotal": tag.track_total,
     }
-
     return metadata
+
+
+def extract_all_metadata(files: list[Path]) -> OrderedDict:
+    tracks_data = OrderedDict()
+    for file in files:
+        filename = file.stem
+        data = extract_metadata(file)
+        tracks_data[filename] = data
+    return tracks_data
 
 
 if __name__ == "__main__":
