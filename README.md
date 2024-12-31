@@ -2,6 +2,10 @@
 
 This converts audio files and images into a format consumable by Kantan Player.
 
+## Testing
+
+Testing is done with pytest. After activating your virtual environment simply run `pytest` at the root directory of the project. For some reason I can't get VS Code configured to run the tests on its own.
+
 ## Audio conversion
 
 A directory of well-named and well-tagged audio files will be converted into a directory of re-encoded audio files with metadata stored in a file named `tracks.json`.

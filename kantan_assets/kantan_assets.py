@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 import argparse
 import json
@@ -206,26 +205,19 @@ def verify_all_audio(files: Generator[Path | str] | list[Path | str]):
         contained within a either a generator or a list.
 
     Raises:
-        FileNotFoundError: If any files are not found and includes the number of
-        missing files in the message.
+        ValueError: If any files are missing required metadata tags.
 
     Returns:
         None
     """
 
     invalid_files = 0
-    missing_files = 0
 
     for file in files:
         try:
             verify_audio(file)
         except ValueError:
             invalid_files += 1
-        except FileNotFoundError:
-            missing_files += 1
-
-    if missing_files:
-        raise FileNotFoundError(f"{missing_files} file(s) not found.")
 
     if invalid_files:
         raise ValueError(f"{invalid_files} file(s) missing required tags.")
@@ -262,7 +254,7 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
 
     Returns:
         A dictionary in a format consumable by Kantan Player apps.
-    
+
     Raises:
         None. Before reaching this function an audio will have already bee
         verified to contain all of the required metadata.
