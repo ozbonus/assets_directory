@@ -275,6 +275,18 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
 
 
 def extract_all_metadata(files: list[Path]) -> OrderedDict:
+    """Extract metadata from a list of audio files.
+
+    Args:
+        list: A list of Path objects to audio files.
+
+    Raises:
+        None
+
+    Returns:
+        An OrderedDict. Every key is a filename stem of on of the audio files
+        and the values are meta as created by the `extract_metadata` function.
+    """
     tracks_data = OrderedDict()
     for file in files:
         filename = file.stem
