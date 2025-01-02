@@ -319,6 +319,14 @@ def write_tracks_json(data: OrderedDict, assets_dir: Path):
         json.dump(data, write_file, indent=4, ensure_ascii=False)
 
 
+def process_cover():
+    pass
+
+
+def process_art():
+    pass
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
     pass
