@@ -353,8 +353,21 @@ def process_cover(file: Path):
             )
 
 
-def process_art():
-    pass
+def process_art(file: Path) -> None:
+    """Create the art image asset from a source image.
+
+    Args:
+        file: A Path object that leads to an image file.
+    """
+    with Image.open(file) as art:
+        art.thumbnail((640, 640), Image.Resampling.LANCZOS)
+        write_file = Path(file.parent / "assets" / "images" / "art.webp")
+        art.save(
+            write_file,
+            format="WEBP",
+            quality=90,
+            method=6,
+        )
 
 
 if __name__ == "__main__":

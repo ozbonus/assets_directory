@@ -15,6 +15,7 @@ from kantan_assets import (
     make_directories,
     write_tracks_json,
     process_cover,
+    process_art,
 )
 
 
@@ -48,6 +49,7 @@ cover_10_file = Path(images_dir / "cover.webp")
 cover_15_file = Path(images_15x_dir / "cover.webp")
 cover_20_file = Path(images_20x_dir / "cover.webp")
 cover_25_file = Path(images_25x_dir / "cover.webp")
+art_out_file = Path(images_dir / "art.webp")
 
 test_metadata_dict = OrderedDict(
     {
@@ -253,3 +255,21 @@ class TestProcessCover:
             assert max(image.size) == cover[1]
             assert image.format == "WEBP"
             image.close()
+
+class TestProcessArt:
+    def setup_method(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        process_art(art_good)
+
+    def teardown_method(self):
+        shutil.rmtree(output_dir)
+    
+    def test_process_art_outputs(self):
+        assert art_out_file.exists()
+    
+    def test_art_meets_requirements(self):
+        image = Image.open(art_out_file)
+        assert image.size[0] == image.size[1]
+        assert max(image.size) == 640
+        assert image.format == "WEBP"
+        image.close()
