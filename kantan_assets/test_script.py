@@ -252,3 +252,4 @@ class TestProcessCover:
             image = Image.open(cover[0])
             assert max(image.size) == cover[1]
             assert image.format == "WEBP"
+            image.close()
