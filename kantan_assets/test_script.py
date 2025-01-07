@@ -283,13 +283,13 @@ class TestProcessAudio:
     def setup_method(self):
         make_directories(TEST_ASSETS_DIRECTORY)
         process_audio(audio_good_1)
-    
+
     def teardown_method(self):
         shutil.rmtree(output_dir)
-    
+
     def test_process_audio_outputs_file(self):
         assert audio_out_file.exists()
-    
+
     def test_audio_out_transcoded_well(self):
         tag = TinyTag.get(audio_out_file)
         assert tag.bitrate == pytest.approx(48, rel=1)
