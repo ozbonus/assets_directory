@@ -333,7 +333,7 @@ def process_cover(file: Path):
     }
 
     with Image.open(file) as cover:
-        for density in densities:
+        for density in tqdm(densities):
             size = densities[density]
             resized_cover = cover.copy()
             resized_cover.thumbnail((size, size), resample=Image.Resampling.LANCZOS)
