@@ -1,15 +1,13 @@
 import argparse
 import json
-import sys
 import subprocess
 from tqdm import tqdm
 from collections import OrderedDict
 from collections.abc import Generator
-from functools import reduce
-from pathlib import Path, PurePath
+from pathlib import Path
 
 import ffmpeg
-from PIL import Image, ImageFilter, UnidentifiedImageError
+from PIL import Image
 from tinytag import TinyTag
 
 parser = argparse.ArgumentParser()
