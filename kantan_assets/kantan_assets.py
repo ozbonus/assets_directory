@@ -394,7 +394,7 @@ def process_audio(file: Path) -> int:
             ac=1,
         )
         .overwrite_output()
-        .run()
+        .run(quiet=True)
     )
 
     original_size = file.stat().st_size
