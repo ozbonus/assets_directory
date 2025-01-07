@@ -370,6 +370,39 @@ def process_art(file: Path) -> None:
         )
 
 
+def process_audio(file: Path) -> int:
+    """Transcode an audio file into AAC_HE
+
+    Args:
+        file: A Path object that leads to an audio file.
+
+    Returns:
+        An integer denoting how many bytes smaller the transcoded file is
+        compared to the input file.
+    """
+
+    write_file = Path(file.parent / "assets" / f"{file.stem}.m4a")
+    (
+        ffmpeg.input(str(file))
+        .audio.output(
+            str(write_file),
+            acodec="libfdk_aac",
+            aprofile="aac_he",
+            vbr=0,
+            ab="48k",
+            ar=44100,
+            ac=1,
+        )
+        .overwrite_output()
+        .run()
+    )
+
+    original_size = file.stat().st_size
+    transcoded_size = write_file.stat().st_size
+
+    return original_size - transcoded_size
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
     pass
