@@ -405,4 +405,29 @@ def process_audio(file: Path) -> int:
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    pass
+
+    input_dir = Path(args.input)
+    make_directories(input_dir)
+
+    print_work_order()
+
+    if args.json:
+        print("Writing metadata to tracks.json...")
+        files = list(sorted(input_dir.glob("*.mp3")))
+        data = extract_all_metadata(files)
+        write_tracks_json(data, Path(input_dir / "assets"))
+
+    if args.image:
+        print("Processing images...")
+        process_cover(Path(input_dir / "cover.jpg"))
+        process_art(Path(input_dir / "art.jpg"))
+
+    if args.trans:
+        print("Transcoding audio...")
+        bytes_saved: int = 0
+        files = list(sorted(input_dir.glob("*.mp3")))
+        for file in tqdm(files):
+            bytes_saved += process_audio(file)
+        print(f"Saved {bytes_saved/1024:.1f}kB via transcoding.")
+
+    print("Done")
