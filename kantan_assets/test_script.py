@@ -17,6 +17,7 @@ from kantan_assets import (
     process_cover,
 )
 
+
 TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
 
 
