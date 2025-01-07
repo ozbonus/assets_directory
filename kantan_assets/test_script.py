@@ -1,7 +1,9 @@
 import pytest
 import json
+import shutil
 from pathlib import Path
 from collections import OrderedDict
+from PIL import Image
 from kantan_assets import (
     verify_ffmpeg,
     verify_cover,
@@ -12,7 +14,10 @@ from kantan_assets import (
     extract_all_metadata,
     make_directories,
     write_tracks_json,
+    process_cover,
+    process_art,
 )
+
 
 TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
 
@@ -33,13 +38,18 @@ audio_good_1 = asset_path("audio_good_1.mp3")
 audio_good_2 = asset_path("audio_good_2.mp3")
 audio_no_tags = asset_path("audio_no_tags.mp3")
 
-assets_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
+output_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
 images_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images")
 images_15x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "1.5x")
 images_20x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.0x")
 images_25x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.5x")
 
-tracks_json_file = Path(assets_dir / "tracks.json")
+tracks_json_file = Path(output_dir / "tracks.json")
+cover_10_file = Path(images_dir / "cover.webp")
+cover_15_file = Path(images_15x_dir / "cover.webp")
+cover_20_file = Path(images_20x_dir / "cover.webp")
+cover_25_file = Path(images_25x_dir / "cover.webp")
+art_out_file = Path(images_dir / "art.webp")
 
 test_metadata_dict = OrderedDict(
     {
@@ -187,7 +197,7 @@ class TestExtractAllMetaData:
 class TestMakeDirectories:
     def test_make_directories(self):
         make_directories(TEST_ASSETS_DIRECTORY)
-        assert assets_dir.exists()
+        assert output_dir.exists()
         assert images_dir.exists()
         assert images_15x_dir.exists()
         assert images_20x_dir.exists()
@@ -196,22 +206,70 @@ class TestMakeDirectories:
         images_20x_dir.rmdir()
         images_25x_dir.rmdir()
         images_dir.rmdir()
-        assets_dir.rmdir()
+        output_dir.rmdir()
 
 
 class TestWriteTracksJson:
     def test_write_tracks_json_writes_file(self):
-        assets_dir.mkdir()
-        write_tracks_json(test_metadata_dict, assets_dir)
+        output_dir.mkdir()
+        write_tracks_json(test_metadata_dict, output_dir)
         assert tracks_json_file.exists()
         tracks_json_file.unlink()
-        assets_dir.rmdir()
+        output_dir.rmdir()
 
     def test_tracks_json_matches_data(self):
-        assets_dir.mkdir()
-        write_tracks_json(test_metadata_dict, assets_dir)
+        output_dir.mkdir()
+        write_tracks_json(test_metadata_dict, output_dir)
         with open(tracks_json_file, "r") as read_file:
             loaded_data = json.load(read_file, object_pairs_hook=OrderedDict)
         assert loaded_data == test_metadata_dict
         tracks_json_file.unlink()
-        assets_dir.rmdir()
+        output_dir.rmdir()
+
+
+class TestProcessCover:
+    def setup_method(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        file = TEST_ASSETS_DIRECTORY / "cover_good.jpg"
+        process_cover(file)
+
+    def teardown_method(self):
+        shutil.rmtree(output_dir)
+
+    def test_process_cover_outputs(self):
+        assert cover_10_file.exists()
+        assert cover_15_file.exists()
+        assert cover_20_file.exists()
+        assert cover_25_file.exists()
+
+    def test_covers_meet_requirements(self):
+        covers = [
+            (cover_10_file, 400),
+            (cover_15_file, 600),
+            (cover_20_file, 800),
+            (cover_25_file, 1024),
+        ]
+
+        for cover in covers:
+            image = Image.open(cover[0])
+            assert max(image.size) == cover[1]
+            assert image.format == "WEBP"
+            image.close()
+
+class TestProcessArt:
+    def setup_method(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        process_art(art_good)
+
+    def teardown_method(self):
+        shutil.rmtree(output_dir)
+    
+    def test_process_art_outputs(self):
+        assert art_out_file.exists()
+    
+    def test_art_meets_requirements(self):
+        image = Image.open(art_out_file)
+        assert image.size[0] == image.size[1]
+        assert max(image.size) == 640
+        assert image.format == "WEBP"
+        image.close()

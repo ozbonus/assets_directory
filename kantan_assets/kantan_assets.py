@@ -319,5 +319,57 @@ def write_tracks_json(data: OrderedDict, assets_dir: Path):
         json.dump(data, write_file, indent=4, ensure_ascii=False)
 
 
+def process_cover(file: Path):
+    """Create cover image assets in various pixel densities.
+
+    Args:
+        file: A Path object that leads to an image file.
+    """
+    densities: dict[str, int] = {
+        "1.0x": 400,
+        "1.5x": 600,
+        "2.0x": 800,
+        "2.5x": 1024,
+    }
+
+    with Image.open(file) as cover:
+        for density in densities:
+            size = densities[density]
+            resized_cover = cover.copy()
+            resized_cover.thumbnail((size, size), resample=Image.Resampling.LANCZOS)
+
+            if density == "1.0x":
+                write_file = Path(file.parent / "assets" / "images" / "cover.webp")
+            else:
+                write_file = Path(
+                    file.parent / "assets" / "images" / f"{density}" / "cover.webp"
+                )
+
+            resized_cover.save(
+                write_file,
+                format="WEBP",
+                quality=95,
+                method=6,
+            )
+
+
+def process_art(file: Path) -> None:
+    """Create the art image asset from a source image.
+
+    Args:
+        file: A Path object that leads to an image file.
+    """
+    with Image.open(file) as art:
+        art.thumbnail((640, 640), Image.Resampling.LANCZOS)
+        write_file = Path(file.parent / "assets" / "images" / "art.webp")
+        art.save(
+            write_file,
+            format="WEBP",
+            quality=90,
+            method=6,
+        )
+
+
 if __name__ == "__main__":
+    args = parser.parse_args()
     pass
