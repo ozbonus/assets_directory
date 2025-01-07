@@ -3,6 +3,7 @@ import json
 import shutil
 from pathlib import Path
 from collections import OrderedDict
+from tinytag import TinyTag
 from PIL import Image
 from kantan_assets import (
     verify_ffmpeg,
@@ -16,6 +17,7 @@ from kantan_assets import (
     write_tracks_json,
     process_cover,
     process_art,
+    process_audio,
 )
 
 
@@ -50,6 +52,7 @@ cover_15_file = Path(images_15x_dir / "cover.webp")
 cover_20_file = Path(images_20x_dir / "cover.webp")
 cover_25_file = Path(images_25x_dir / "cover.webp")
 art_out_file = Path(images_dir / "art.webp")
+audio_out_file = Path(output_dir / "audio_good_1.m4a")
 
 test_metadata_dict = OrderedDict(
     {
@@ -59,7 +62,7 @@ test_metadata_dict = OrderedDict(
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
-            "duration": 30040,
+            "duration": 15076,
             "disc": 1,
             "discTotal": 1,
             "track": 1,
@@ -71,7 +74,7 @@ test_metadata_dict = OrderedDict(
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
-            "duration": 30040,
+            "duration": 15076,
             "disc": 1,
             "discTotal": 1,
             "track": 2,
@@ -163,7 +166,7 @@ class TestExtractMetaData:
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
-            "duration": 30040,
+            "duration": 15076,
             "disc": 1,
             "discTotal": 1,
             "track": 1,
@@ -179,7 +182,7 @@ class TestExtractMetaData:
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
-            "duration": 30040,
+            "duration": 15076,
             "disc": 1,
             "discTotal": 1,
             "track": 2,
@@ -256,6 +259,7 @@ class TestProcessCover:
             assert image.format == "WEBP"
             image.close()
 
+
 class TestProcessArt:
     def setup_method(self):
         make_directories(TEST_ASSETS_DIRECTORY)
@@ -263,13 +267,30 @@ class TestProcessArt:
 
     def teardown_method(self):
         shutil.rmtree(output_dir)
-    
+
     def test_process_art_outputs(self):
         assert art_out_file.exists()
-    
+
     def test_art_meets_requirements(self):
         image = Image.open(art_out_file)
         assert image.size[0] == image.size[1]
         assert max(image.size) == 640
         assert image.format == "WEBP"
         image.close()
+
+
+class TestProcessAudio:
+    def setup_method(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        process_audio(audio_good_1)
+    
+    def teardown_method(self):
+        shutil.rmtree(output_dir)
+    
+    def test_process_audio_outputs_file(self):
+        assert audio_out_file.exists()
+    
+    def test_audio_out_transcoded_well(self):
+        tag = TinyTag.get(audio_out_file)
+        assert tag.bitrate == pytest.approx(48, rel=1)
+        assert tag.samplerate == 44100
