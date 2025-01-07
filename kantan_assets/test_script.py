@@ -33,13 +33,13 @@ audio_good_1 = asset_path("audio_good_1.mp3")
 audio_good_2 = asset_path("audio_good_2.mp3")
 audio_no_tags = asset_path("audio_no_tags.mp3")
 
-assets_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
+output_dir = Path(TEST_ASSETS_DIRECTORY / "assets")
 images_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images")
 images_15x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "1.5x")
 images_20x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.0x")
 images_25x_dir = Path(TEST_ASSETS_DIRECTORY / "assets" / "images" / "2.5x")
 
-tracks_json_file = Path(assets_dir / "tracks.json")
+tracks_json_file = Path(output_dir / "tracks.json")
 cover_10_file = Path(images_dir / "cover.webp")
 cover_15_file = Path(images_15x_dir / "cover.webp")
 cover_20_file = Path(images_20x_dir / "cover.webp")
@@ -191,7 +191,7 @@ class TestExtractAllMetaData:
 class TestMakeDirectories:
     def test_make_directories(self):
         make_directories(TEST_ASSETS_DIRECTORY)
-        assert assets_dir.exists()
+        assert output_dir.exists()
         assert images_dir.exists()
         assert images_15x_dir.exists()
         assert images_20x_dir.exists()
@@ -200,22 +200,22 @@ class TestMakeDirectories:
         images_20x_dir.rmdir()
         images_25x_dir.rmdir()
         images_dir.rmdir()
-        assets_dir.rmdir()
+        output_dir.rmdir()
 
 
 class TestWriteTracksJson:
     def test_write_tracks_json_writes_file(self):
-        assets_dir.mkdir()
-        write_tracks_json(test_metadata_dict, assets_dir)
+        output_dir.mkdir()
+        write_tracks_json(test_metadata_dict, output_dir)
         assert tracks_json_file.exists()
         tracks_json_file.unlink()
-        assets_dir.rmdir()
+        output_dir.rmdir()
 
     def test_tracks_json_matches_data(self):
-        assets_dir.mkdir()
-        write_tracks_json(test_metadata_dict, assets_dir)
+        output_dir.mkdir()
+        write_tracks_json(test_metadata_dict, output_dir)
         with open(tracks_json_file, "r") as read_file:
             loaded_data = json.load(read_file, object_pairs_hook=OrderedDict)
         assert loaded_data == test_metadata_dict
         tracks_json_file.unlink()
-        assets_dir.rmdir()
+        output_dir.rmdir()
