@@ -1,7 +1,9 @@
 import pytest
 import json
+import shutil
 from pathlib import Path
 from collections import OrderedDict
+from PIL import Image
 from kantan_assets import (
     verify_ffmpeg,
     verify_cover,
@@ -12,6 +14,7 @@ from kantan_assets import (
     extract_all_metadata,
     make_directories,
     write_tracks_json,
+    process_cover,
 )
 
 TEST_ASSETS_DIRECTORY = Path("kantan_assets/test_assets")
@@ -219,3 +222,32 @@ class TestWriteTracksJson:
         assert loaded_data == test_metadata_dict
         tracks_json_file.unlink()
         output_dir.rmdir()
+
+
+class TestProcessCover:
+    def setup_method(self):
+        make_directories(TEST_ASSETS_DIRECTORY)
+        file = TEST_ASSETS_DIRECTORY / "cover_good.jpg"
+        process_cover(file)
+
+    def teardown_method(self):
+        shutil.rmtree(output_dir)
+
+    def test_process_cover_outputs(self):
+        assert cover_10_file.exists()
+        assert cover_15_file.exists()
+        assert cover_20_file.exists()
+        assert cover_25_file.exists()
+
+    def test_covers_meet_requirements(self):
+        covers = [
+            (cover_10_file, 400),
+            (cover_15_file, 600),
+            (cover_20_file, 800),
+            (cover_25_file, 1024),
+        ]
+
+        for cover in covers:
+            image = Image.open(cover[0])
+            assert max(image.size) == cover[1]
+            assert image.format == "WEBP"
