@@ -258,17 +258,17 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
         verified to contain all of the required metadata.
     """
     tag: TinyTag = TinyTag.get(path)
-    metadata: dict[str, str | int | None] = {
+    metadata: dict[str, str | None] = {
         "filename": path.stem,
         "album": tag.album,
         "artist": tag.artist,
         "title": tag.title,
         "displayDescription": tag.comment,
         "duration": int(tag.duration * 1000),
-        "disc": tag.disc,
-        "discTotal": tag.disc_total,
-        "track": tag.track,
-        "trackTotal": tag.track_total,
+        "disc": str(tag.disc),
+        "discTotal": str(tag.disc_total),
+        "track": str(tag.track),
+        "trackTotal": str(tag.track_total),
     }
     return metadata
 

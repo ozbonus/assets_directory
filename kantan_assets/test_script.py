@@ -63,10 +63,10 @@ test_metadata_dict = OrderedDict(
             "title": "Test Title",
             "displayDescription": "Test Comment",
             "duration": 15076,
-            "disc": 1,
-            "discTotal": 1,
-            "track": 1,
-            "trackTotal": 2,
+            "disc": "1",
+            "discTotal": "1",
+            "track": "1",
+            "trackTotal": "2",
         },
         "audio_good_2": {
             "filename": "audio_good_2",
@@ -75,10 +75,10 @@ test_metadata_dict = OrderedDict(
             "title": "Test Title",
             "displayDescription": "Test Comment",
             "duration": 15076,
-            "disc": 1,
-            "discTotal": 1,
-            "track": 2,
-            "trackTotal": 2,
+            "disc": "1",
+            "discTotal": "1",
+            "track": "2",
+            "trackTotal": "2",
         },
     }
 )
@@ -160,33 +160,33 @@ class TestVerifyAllAudio:
 class TestExtractMetaData:
     def test_extract_metadata_1(self):
         file = Path(audio_good_1)
-        expected: dict[str, str | int | None] = {
+        expected: dict[str, str | None] = {
             "filename": "audio_good_1",
             "album": "Test Album",
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
             "duration": 15076,
-            "disc": 1,
-            "discTotal": 1,
-            "track": 1,
-            "trackTotal": 2,
+            "disc": "1",
+            "discTotal": "1",
+            "track": "1",
+            "trackTotal": "2",
         }
         assert extract_metadata(file) == expected
 
     def test_extract_metadata_2(self):
         file = Path(audio_good_2)
-        expected: dict[str, str | int | None] = {
+        expected: dict[str, str | None] = {
             "filename": "audio_good_2",
             "album": "Test Album",
             "artist": "Test Artist",
             "title": "Test Title",
             "displayDescription": "Test Comment",
             "duration": 15076,
-            "disc": 1,
-            "discTotal": 1,
-            "track": 2,
-            "trackTotal": 2,
+            "disc": "1",
+            "discTotal": "1",
+            "track": "2",
+            "trackTotal": "2",
         }
         assert extract_metadata(file) == expected
 
