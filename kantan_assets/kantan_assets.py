@@ -259,7 +259,7 @@ def extract_metadata(path: Path) -> dict[str, str | int]:
     """
     tag: TinyTag = TinyTag.get(path)
     metadata: dict[str, str | None] = {
-        "filename": path.stem,
+        "filename": path.stem + ".m4a",
         "album": tag.album,
         "artist": tag.artist,
         "title": tag.title,
